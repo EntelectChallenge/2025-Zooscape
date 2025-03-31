@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bot Game UI</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
+  <style>
+    /* Flex container to place map and leaderboard side by side */
+    #container {
+      display: flex;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    td {
+      border: 1px solid black;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .animal {
+      background-color: green;
+    }
+    .zookeeper {
+      background-color: red;
+    }
+    .empty {
+      background-color: green;
+    }
+    .wall {
+      background-color: brown;
+    }
+    .pellet {
+      background-color: green;
+    }
+    .spawn {
+      background-color: blue;
+    }
+    .unknown {
+      background-color: gray;
+    }
+    #grid {
+      overflow: auto;
+    }
+    #leaderboard {
+      margin-left: 20px;
+    }
+    #leaderboard table {
+      border-collapse: collapse;
+    }
+    #leaderboard th, #leaderboard td {
+      border: 1px solid black;
+      padding: 5px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="grid"></div>
+    <div id="leaderboard"></div>
+  </div>
+
+  <script>
+    function generateGuid() {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == "x" ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function generateRandomName() {
+      const firstList = ["Big", "Lil", "Blue", "Stupid", "Stinky", "Fuzzy", "Squishy", "Phat"];
+      const secondList = ["Ol", "Red", "Rotten", "Wooden", "Russian", "Party"];
+      const thirdList = ["Dog", "Bugger", "Robot", "Muppet", "Blob", "Crawler", "Snotnose"];
+      const firstWord = firstList[Math.floor(Math.random() * firstList.length)];
+      const secondWord = secondList[Math.floor(Math.random() * secondList.length)];
+      const thirdWord = thirdList[Math.floor(Math.random() * thirdList.length)];
+      return `${firstWord} ${secondWord} ${thirdWord}`;
+    }
+
+    const animalEmojis = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵"];
+
+    function drawGrid(cells, animals, zookeepers) {
+      const maxX = Math.max(...cells.map(function(c) { return c.x; }));
+      const maxY = Math.max(...cells.map(function(c) { return c.y; }));
+      const grid = Array(maxY + 1).fill().map(function() { return Array(maxX + 1).fill(null); });
+
+      cells.forEach(function(cell) {
+        grid[cell.y][cell.x] = { cellType: cell.content, entity: null };
+      });
+
+      animals.forEach(function(animal) {
+        grid[animal.y][animal.x].entity = { 
+          type: "animal", 
+          emoji: animal.emoji
+        };
+      });
+
+      zookeepers.forEach(function(zookeeper) {
+        grid[zookeeper.y][zookeeper.x].entity = { 
+          type: "zookeeper", 
+          emoji: "👮" 
+        };
+      });
+
+      let tableHtml = "<table>";
+      for (let y = 0; y <= maxY; y++) {
+        tableHtml += "<tr>";
+        for (let x = 0; x <= maxX; x++) {
+          let cellData = grid[y][x] || { cellType: " ", entity: null };
+          let className = "";
+          let displayChar = "";
+
+          if (cellData.entity) {
+            if (cellData.entity.type === "animal") {
+              className = "animal";
+              displayChar = cellData.entity.emoji;
+            } else if (cellData.entity.type === "zookeeper") {
+              className = "zookeeper";
+              displayChar = cellData.entity.emoji;
+            }
+          } else {
+            switch (cellData.cellType) {
+              case " ":
+              case 0:
+                className = "empty";
+                displayChar = " ";
+                break;
+              case "#":
+              case 1:
+                className = "wall";
+                displayChar = "🧱";
+                break;
+              case ".":
+              case 2:
+                className = "pellet";
+                displayChar = "🟡";
+                break;
+              case "Z":
+              case 3:
+                className = "spawn";
+                displayChar = "🏠";
+                break;
+              case "A":
+              case 4:
+                className = "spawn";
+                displayChar = "🏠";
+                break;
+              default:
+                className = "unknown";
+                displayChar = cellData.cellType;
+            }
+          }
+          tableHtml += "<td class=\"" + className + "\">" + displayChar + "</td>";
+        }
+        tableHtml += "</tr>";
+      }
+      tableHtml += "</table>";
+      document.getElementById("grid").innerHTML = tableHtml;
+    }
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5001/bothub")
+      .build();
+
+    connection.on("GameState", function(message) {
+      message.animals.forEach((animal, index) => {
+        animal.emoji = animalEmojis[index % animalEmojis.length];
+      });
+
+      drawGrid(message.cells, message.animals, message.zookeepers);
+
+      const sortedAnimals = [...message.animals].sort((a, b) => b.score - a.score);
+      let leaderboardHtml = "<h2>Leaderboard</h2><table>";
+      leaderboardHtml += "<tr><th>Rank</th><th>Emoji</th><th>Name</th><th>Score</th></tr>";
+      sortedAnimals.forEach((animal, index) => {
+        const rank = index + 1;
+        const emoji = animal.emoji;
+        const name = animal.nickname;
+        const score = animal.score;
+        leaderboardHtml += `<tr><td>${rank}</td><td>${emoji}</td><td>${name}</td><td>${score}</td></tr>`;
+      });
+      leaderboardHtml += "</table>";
+      document.getElementById("leaderboard").innerHTML = leaderboardHtml;
+    });
+
+    connection.onclose(function(error) {
+      console.log("Connection closed.");
+      document.getElementById("grid").textContent = "Connection closed. Please refresh the page.";
+    });
+
+    connection.start().then(function() {
+      console.log("Connected to SignalR hub!");
+      connection.invoke("RegisterVisualiser").then(function() {
+        console.log("Sent RegisterVisualiser message.");
+      }).catch(function(err) {
+        console.error("RegisterVisualiser error:", err);
+      });
+    }).catch(function(err) {
+      console.error("Connection error:", err);
+    });
+  </script>
+</body>
+</html>

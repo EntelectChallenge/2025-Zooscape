@@ -47,6 +47,22 @@ using (LogContext.PushProperty("ConsoleOnly", true))
                     services.Configure<SignalRConfigOptions>(
                         context.Configuration.GetSection("SignalR")
                     );
+
+                    services.AddCors(options =>
+                    {
+                        options.AddPolicy(
+                            "AllowWebUI",
+                            builder =>
+                            {
+                                builder
+                                    .WithOrigins("http://localhost:5500", "https://localhost:5500")
+                                    .AllowAnyMethod()
+                                    .AllowAnyHeader()
+                                    .AllowCredentials();
+                            }
+                        );
+                    });
+
                     services.AddSignalR(options =>
                     {
                         options.EnableDetailedErrors = true;
@@ -90,6 +106,7 @@ using (LogContext.PushProperty("ConsoleOnly", true))
                 webBuilder.Configure(app =>
                 {
                     app.UseRouting();
+                    app.UseCors("AllowWebUI");
                     app.UseEndpoints(endpoints =>
                     {
                         endpoints.MapHub<BotHub>("/bothub");

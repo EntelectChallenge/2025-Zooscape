@@ -11,7 +11,7 @@ public class Program
     {
         var ui = new UI();
 
-        var connection = new HubConnectionBuilder().WithUrl("http://localhost:5000/bothub").Build();
+        var connection = new HubConnectionBuilder().WithUrl("http://localhost:5001/bothub").Build();
 
         connection.Closed += async (error) =>
         {

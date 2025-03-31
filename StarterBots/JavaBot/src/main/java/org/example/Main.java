@@ -25,7 +25,7 @@ public class Main {
         String ip = (environmentIp != null && !environmentIp.isBlank()) ? environmentIp : "localhost";
         ip = ip.startsWith("http://") ? ip : "http://" + ip;
 
-        String url = ip + ":" + "5000" + "/bothub";
+        String url = ip + ":" + "5001" + "/bothub";
 
         String nickname = environmentNickname != null ? environmentNickname : "JavaBot";
 

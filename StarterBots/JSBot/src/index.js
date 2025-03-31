@@ -3,8 +3,8 @@ import process from "process";
 
 const runnerIP = process.env.RUNNER_IPV4 ?? "localhost";
 const runnerURL = runnerIP.startsWith("http://")
-    ? `${runnerIP}:5000/bothub`
-    : `http://${runnerIP}:5000/bothub`;
+    ? `${runnerIP}:5001/bothub`
+    : `http://${runnerIP}:5001/bothub`;
 
 const botNickname = process.env.BOT_NICKNAME ?? "JSBot";
 const token = process.env.Token ?? process.env.REGISTRATION_TOKEN;

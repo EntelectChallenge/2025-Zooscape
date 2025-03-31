@@ -4,13 +4,13 @@ services:
       context: .
     container_name: zooscape-engine
     healthcheck:
-      test: curl http://localhost:5000/bothub
+      test: curl http://localhost:5001/bothub
       interval: 50ms
       start_interval: 50ms
       start_period: 50ms
       retries: 20
     ports:
-      - "5000:5000"
+      - "5001:5001"
     volumes:
       - ./logs:/var/log/zooscape
     environment:

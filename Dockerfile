@@ -17,8 +17,8 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish -p Zooscape -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
-EXPOSE 5000
-HEALTHCHECK CMD curl http://localhost:5000/bothub
+EXPOSE 5001
+HEALTHCHECK CMD curl http://localhost:5001/bothub
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Zooscape.dll"]

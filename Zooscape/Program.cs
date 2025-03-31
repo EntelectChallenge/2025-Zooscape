@@ -84,7 +84,7 @@ using (LogContext.PushProperty("ConsoleOnly", true))
             )
             .ConfigureWebHostDefaults(webBuilder =>
             {
-                var port = 5000;
+                var port = 5001;
                 Log.Information("Configuring SignalR to run on port {port}", port);
                 webBuilder.UseUrls($"http://*:{port}");
                 webBuilder.Configure(app =>

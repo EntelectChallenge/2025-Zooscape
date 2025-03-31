@@ -60,7 +60,7 @@ The application can be run using docker via the following commands from the root
 ./run.sh
 ```
 
-These scripts will run the game on port 5000 and connect 3 reference bots
+These scripts will run the game on port 5001 and connect 3 reference bots
 
 ## Project Structure
 

@@ -1,0 +1,5 @@
+.gitignore
+Dockerfile
+README.md
+.venv/
+src/__pycache__/

@@ -35,6 +35,7 @@ public class BotHub : Hub
         try
         {
             _logger.LogInformation("Bot connected: {ConnectionId}", Context.ConnectionId);
+            Clients.Caller.SendAsync(OutgoingMessages.Connect, Context.ConnectionId);
             return base.OnConnectedAsync();
         }
         catch (Exception e)

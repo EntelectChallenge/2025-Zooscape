@@ -69,6 +69,7 @@
 				"IsViable": true
 			}
 		},
+		"ZookeeperCount" : 1,
 		"TickCounter": 8
 	}
 }

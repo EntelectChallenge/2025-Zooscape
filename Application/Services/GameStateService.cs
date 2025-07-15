@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Zooscape.Application.Config;
@@ -13,6 +15,8 @@ using Zooscape.Domain.Models;
 using Zooscape.Domain.Utilities;
 using Zooscape.Domain.ValueObjects;
 using Zooscape.MapGenerator;
+
+[assembly: InternalsVisibleTo("ZooscapeTests")]
 
 namespace Zooscape.Application.Services;
 
@@ -92,7 +96,7 @@ public class GameStateService : IGameStateService
         _ticksUntilNextZookeeperSpawn = GetTicksUntilNextZookeeper();
     }
 
-    private static String GenerateMap(string values, int seed)
+    private static string GenerateMap(string values, int seed)
     {
         var parts = values.Split('|');
         if (parts.Length < 4)
@@ -111,10 +115,10 @@ public class GameStateService : IGameStateService
 
         try
         {
-            size = int.Parse(parts[0]);
-            teleports = int.Parse(parts[1]);
-            smoothness = double.Parse(parts[2]);
-            openness = double.Parse(parts[3]);
+            size = int.Parse(parts[0], CultureInfo.InvariantCulture);
+            teleports = int.Parse(parts[1], CultureInfo.InvariantCulture);
+            smoothness = double.Parse(parts[2], CultureInfo.InvariantCulture);
+            openness = double.Parse(parts[3], CultureInfo.InvariantCulture);
         }
         catch (FormatException exception)
         {
@@ -577,6 +581,34 @@ public class GameStateService : IGameStateService
             pelletsCollected,
             powerPelletsCollected
         );
+    }
+
+    #endregion
+
+    #region Wrappers for testing private methods
+
+    protected internal static string TestGenerateMap(string values, int seed)
+    {
+        return GenerateMap(values, seed);
+    }
+
+    protected internal bool TestIsValidPowerUpSpawnPoint(GridCoords coords)
+    {
+        return IsValidPowerUpSpawnPoint(coords);
+    }
+
+    protected internal bool TestIsWithinDistanceOfAnimal(GridCoords coords, int distance)
+    {
+        return IsWithinDistanceOfAnimal(coords, distance);
+    }
+
+    protected internal bool TestIsWithinDistanceOfCellContents(
+        GridCoords coords,
+        CellContents contents,
+        int distance
+    )
+    {
+        return IsWithinDistanceOfCellContents(coords, contents, distance);
     }
 
     #endregion

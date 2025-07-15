@@ -3,6 +3,7 @@ namespace Zooscape.Infrastructure.SignalRHub.Messages;
 public class OutgoingMessages
 {
     public static readonly OutgoingMessages Registered = new("Registered");
+    public static readonly OutgoingMessages Connect = new("Connect");
     public static readonly OutgoingMessages Disconnect = new("Disconnect");
     public static readonly OutgoingMessages StartGame = new("StartGame");
     public static readonly OutgoingMessages EndGame = new("EndGame");

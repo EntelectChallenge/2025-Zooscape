@@ -42,6 +42,7 @@ public partial class GameManager : Node3D
     private Camera3D Camera { get; set; }
 
     private HubConnection Connection;
+    private bool GameEngineConnected = false;
 
     private List<AnimalReference> Animals;
     private List<ZookeeperReference> Zookeepers;
@@ -71,6 +72,9 @@ public partial class GameManager : Node3D
         }
         else
         {
+            var splashPanel = GetNode<PanelContainer>("UI/SplashPanel");
+            splashPanel.Visible = false;
+
             ReadStateFromLogs();
         }
 
@@ -79,9 +83,26 @@ public partial class GameManager : Node3D
 
     private void ManageTimedEvents()
     {
-        var timer = GetNode<Timer>("Timer");
+        var timer = GetNode<Timer>("Timers/TickTimer");
         timer.Start(1 / GameSettings.GameSpeed);
         timer.Timeout += ManageTickEvents;
+    }
+
+    private void CheckGameEngineConnection()
+    {
+        var timer = GetNode<Timer>("Timers/SplashTimer");
+        timer.Start(5);
+        timer.Timeout += ResetVisualiser;
+    }
+
+    private void ResetVisualiser()
+    {
+        if (!GameEngineConnected)
+        {
+            var scene = ResourceLoader.Load<PackedScene>("res://scenes/menus/main.tscn").Instantiate();
+            NotificationManager.ShowNotification(this, "Game engine link failed!", false);
+            NavigationManager.NavigateToScene(scene, this);
+        }
     }
 
     private void ManageTickEvents()
@@ -205,6 +226,8 @@ public partial class GameManager : Node3D
 
     private void ManageHubConnection()
     {
+        var splashPanel = GetNode<PanelContainer>("UI/SplashPanel");
+
         Connection = new HubConnectionBuilder()
             .WithUrl(new Uri("http://localhost:5000/bothub"))
             .Build();
@@ -217,23 +240,36 @@ public partial class GameManager : Node3D
         if (Connection?.State != HubConnectionState.Connected)
         {
             Connection.On<string>(
-                "ClientConnected",
+                "Connect",
                 (connectionId) =>
                 {
                     if (Connection.ConnectionId == connectionId)
                     {
                         Connection.InvokeAsync("RegisterVisualiser");
+                        NotificationManager.ShowNotification(this, "Game engine linked successfully!");
+                        GameEngineConnected = true;
+                        splashPanel.Visible = false;
                     }
                 }
             );
 
             Connection.On<GameState>(
                 "GameState",
-                (world) => { State.WorldStates.Add(world); }
+                (world) =>
+                {
+                    State.WorldStates.Add(world);
+                }
             );
 
             Connection.StartAsync();
+            CheckGameEngineConnection();
         }
+    }
+
+    private void BackToMenu()
+    {
+        var menuScene = ResourceLoader.Load<PackedScene>("res://scenes/menus/main.tscn").Instantiate();
+        NavigationManager.NavigateToScene(menuScene, this);
     }
 
     private void VisualiseWorld()
@@ -500,7 +536,9 @@ public partial class GameManager : Node3D
         // 	node.LookAt(targetPosition);
         // }
 
-        if (targetPosition.X == spawnPosition.X && targetPosition.Z == spawnPosition.Z)
+        var distance = node.GlobalPosition.DistanceTo(targetPosition);
+
+        if (targetPosition.X == spawnPosition.X && targetPosition.Z == spawnPosition.Z || distance > 2)
         {
             node.GlobalPosition = targetPosition;
             return;

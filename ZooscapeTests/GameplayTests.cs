@@ -66,6 +66,17 @@ public class GameplayTests
                         },
                     },
                 },
+            Zookeepers =
+            {
+                Max = testData.Input.Zookeepers,
+                SpawnInterval = new SpawnIntervals
+                {
+                    Mean = 2,
+                    StdDev = 1,
+                    Min = 1,
+                    Max = 3,
+                },
+            },
         };
 
         var logSettings = new GameLogsConfiguration
@@ -96,7 +107,7 @@ public class GameplayTests
             gameState.AddAnimal(botId, "");
         }
 
-        for (int i = 0; i < testData.Input.Zookeepers; i++)
+        if (testData.Input.Zookeepers > 0)
         {
             gameState.AddZookeeper();
         }
@@ -138,6 +149,7 @@ public class GameplayTests
         Assert.Multiple(() =>
         {
             Assert.Equal(testData.ExpectedState.TickCounter, gameState.TickCounter);
+            Assert.Equal(testData.ExpectedState.ZookeeperCount, gameState.Zookeepers.Count);
             foreach (var botId in testData.ExpectedState.Animals.Keys)
             {
                 Assert.True(
@@ -240,6 +252,7 @@ public class GameplayTests
     {
         public Dictionary<Guid, AnimalState> Animals { get; set; }
         public int TickCounter { get; set; }
+        public int ZookeeperCount { get; set; }
     }
 
     public class BotActionTuple

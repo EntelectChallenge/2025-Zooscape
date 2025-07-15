@@ -1,6 +1,7 @@
 using Zooscape.Application.Services;
 using Zooscape.Domain.Enums;
 using Zooscape.Domain.Models;
+using Zooscape.Domain.Utilities;
 
 namespace ZooscapeTests;
 
@@ -8,8 +9,8 @@ public class TestMocks
 {
     public class MockPowerUpService : IPowerUpService
     {
-        public int DistanceFromPlayers { get; }
-        public int DistanceFromOtherPowerUps { get; }
+        public int DistanceFromPlayers { get; set; }
+        public int DistanceFromOtherPowerUps { get; set; }
 
         public int GetTimeToNextPowerUp()
         {

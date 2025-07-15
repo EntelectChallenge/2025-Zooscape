@@ -10,16 +10,17 @@ public static class NotificationManager
         bool isSuccess = true
     )
     {
+        var state = isSuccess ? "success" : "failure";
         var toast = ResourceLoader
-            .Load<PackedScene>("res://scenes/menus/popups/toast.tscn")
+            .Load<PackedScene>($"res://scenes/menus/popups/toast_{state}.tscn")
             .Instantiate();
         var toastHeading = toast.GetNode<Label>("UI/Content/Panel/Heading");
         toastHeading.Text = notificationText;
 
         var tree = node.GetTree();
-        tree.GetRoot().AddChild(toast);
+        tree.GetRoot().CallDeferred("add_child", toast);
 
         await Task.Delay(TimeSpan.FromMilliseconds(1500));
-        tree.GetRoot().RemoveChild(toast);
+        tree.GetRoot().CallDeferred("remove_child", toast);
     }
 }

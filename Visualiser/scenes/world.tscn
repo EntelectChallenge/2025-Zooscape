@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://8x8w3epxdj57"]
+[gd_scene load_steps=17 format=3 uid="uid://8x8w3epxdj57"]
 
 [ext_resource type="Script" path="res://scripts/GameManager.cs" id="2_7clqs"]
 [ext_resource type="PackedScene" uid="uid://celv7ux54vh5" path="res://scenes/samples/sample_animal.tscn" id="2_gmkwb"]
@@ -11,11 +11,17 @@
 [ext_resource type="PackedScene" uid="uid://bf1vo18nihsd2" path="res://scenes/samples/sample_wall.tscn" id="9_byvgh"]
 [ext_resource type="PackedScene" uid="uid://nmcmcchb8wio" path="res://scenes/samples/sample_animal_spawn.tscn" id="10_b74nb"]
 [ext_resource type="PackedScene" uid="uid://cy67b5tsl77kj" path="res://scenes/samples/sample_zookeeper_spawn.tscn" id="11_vxlsv"]
+[ext_resource type="Script" path="res://scripts/menus/Game_MainMenu.cs" id="12_che58"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c2lb4"]
 albedo_color = Color(0.393426, 0.231576, 0, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pqqk5"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lsmya"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_7i5wq"]
+font_size = 24
 
 [node name="world" type="Node3D"]
 
@@ -36,7 +42,12 @@ ZookeeperSpawnScene = ExtResource("11_vxlsv")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 material = SubResource("StandardMaterial3D_c2lb4")
 
-[node name="Timer" type="Timer" parent="game_manager"]
+[node name="Timers" type="Node" parent="game_manager"]
+
+[node name="TickTimer" type="Timer" parent="game_manager/Timers"]
+wait_time = 5.0
+
+[node name="SplashTimer" type="Timer" parent="game_manager/Timers"]
 wait_time = 5.0
 
 [node name="Camera3D" type="Camera3D" parent="game_manager"]
@@ -80,6 +91,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 10.0
 
+[node name="HBoxContainer" type="HBoxContainer" parent="game_manager/UI/HBoxContainer/VBoxContainer2"]
+layout_direction = 3
+layout_mode = 2
+
+[node name="MainMenuButton" type="Button" parent="game_manager/UI/HBoxContainer/VBoxContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "Main Menu"
+script = ExtResource("12_che58")
+
 [node name="Scoreboard" type="VBoxContainer" parent="game_manager/UI/HBoxContainer"]
 visible = false
 layout_mode = 2
@@ -120,6 +141,21 @@ layout_mode = 2
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxEmpty_pqqk5")
 text = "Distance"
+
+[node name="SplashPanel" type="PanelContainer" parent="game_manager/UI"]
+modulate = Color(0.332881, 0.332881, 0.332881, 1)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lsmya")
+
+[node name="TickNumber" type="Label" parent="game_manager/UI/SplashPanel"]
+layout_mode = 2
+text = "Waiting for game engine..."
+label_settings = SubResource("LabelSettings_7i5wq")
+horizontal_alignment = 1
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.83598, 0.208408, -0.507646, 0.54876, -0.317488, 0.773346, 0, -0.925077, -0.379779, 0, 0, 0)

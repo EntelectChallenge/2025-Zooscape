@@ -1,0 +1,47 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3pw4eyubvf2c"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fdtyp"]
+bg_color = Color(0.40304, 0.676735, 0.416165, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_uvmjw"]
+font_size = 24
+
+[node name="Toast" type="Node3D"]
+
+[node name="UI" type="Node" parent="."]
+
+[node name="Content" type="HBoxContainer" parent="UI"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 1.0
+offset_bottom = 36.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Panel" type="Panel" parent="UI/Content"]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_fdtyp")
+
+[node name="Heading" type="Label" parent="UI/Content/Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 34.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+text = "Settings"
+label_settings = SubResource("LabelSettings_uvmjw")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Heading" type="Label" parent="UI/Content"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Settings"
+label_settings = SubResource("LabelSettings_uvmjw")
+horizontal_alignment = 1
+vertical_alignment = 1
